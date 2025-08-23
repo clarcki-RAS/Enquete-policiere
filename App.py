@@ -119,7 +119,7 @@ class PrologInvestigationSystem:
         
         # Configurer les styles de texte
         self.result_text.tag_configure('guilty', foreground='#e74c3c', font=('Consolas', 9, 'bold'))  # Rouge pour coupable
-        self.result_text.tag_configure('not_guilty', foreground='#27ae60', font=('Consolas', 9, 'bold'))  # Vert pour non coupable
+        self.result_text.tag_configure('not_guilty', foreground="#27ae60", font=('Consolas', 9, 'bold'))  # Vert pour non coupable
         self.result_text.tag_configure('error', foreground='#c0392b', font=('Consolas', 9, 'bold'))
         self.result_text.tag_configure('unknown', foreground='#f39c12', font=('Consolas', 9, 'bold'))
         self.result_text.tag_configure('normal', foreground='#2c3e50', font=('Consolas', 9))
@@ -136,30 +136,31 @@ class PrologInvestigationSystem:
     def check_guilt(self):
         suspect = self.suspect_var.get()
         crime_type = self.crime_var.get()
-        
+    
         if not suspect or not crime_type:
             messagebox.showerror("Erreur", "Veuillez sélectionner un suspect et un type de crime.")
             return
-        
+    
         self.status_var.set("Vérification en cours...")
         self.root.update()
-        
+    
         try:
             # Exécuter la requête avec SWI-Prolog
             cmd = ['swipl', '-q', '-s', self.prolog_file, '-g', f'crime({suspect}, {crime_type})', '-t', 'halt']
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-            
+        
             # Afficher le résultat
             output = result.stdout.strip()
             error_output = result.stderr.strip()
             
-            # Appliquer un style différent selon le résultat
-            self.result_text.insert(tk.END, f"🔍 Enquête: {suspect} - {crime_type}\n", 'normal')
+            # Display the investigation line
+            self.result_text.insert(tk.END, f"Enquête: {suspect} - {crime_type}\n", 'normal')
             
-            if "coupable" in output:
-                self.result_text.insert(tk.END, f"🔴 {output}\n", 'guilty')  # Rouge pour coupable
+            # Check the verdict and apply appropriate styling
+            if "coupable" in output and "non coupable" not in output:
+                self.result_text.insert(tk.END, f"🔴 Verdict : coupable\n", 'guilty')  # Rouge pour coupable
             elif "non coupable" in output:
-                self.result_text.insert(tk.END, f"🟢 {output}\n", 'not_guilty')  # Vert pour non coupable
+                self.result_text.insert(tk.END, f"🟢 Verdict : non coupable\n", 'not_guilty')  # Vert pour non coupable
             elif error_output:
                 self.result_text.insert(tk.END, f"⚠️  Erreur: {error_output}\n", 'error')
             else:
@@ -168,13 +169,13 @@ class PrologInvestigationSystem:
             self.result_text.insert(tk.END, "―" * 50 + "\n\n", 'normal')
             
             self.status_var.set("Vérification terminée")
-                
+            
         except subprocess.TimeoutExpired:
-            self.result_text.insert(tk.END, f"⏰ {suspect} - {crime_type}: Timeout\n", 'error')
+            self.result_text.insert(tk.END, f"Timeout: {suspect} - {crime_type}\n", 'error')
             self.result_text.insert(tk.END, "―" * 50 + "\n\n", 'normal')
             self.status_var.set("Timeout - La requête a pris trop de temps")
         except Exception as e:
-            self.result_text.insert(tk.END, f"💥 {suspect} - {crime_type}: Erreur - {str(e)}\n", 'error')
+            self.result_text.insert(tk.END, f"Erreur: {str(e)}\n", 'error')
             self.result_text.insert(tk.END, "―" * 50 + "\n\n", 'normal')
             self.status_var.set("Erreur d'exécution")
     
