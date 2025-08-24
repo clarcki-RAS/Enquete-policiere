@@ -14,6 +14,8 @@ Liste des Membres du groupe ayant fait le projet :
 
 1180H-F VONJIARIMANANA Nomena Fitiavana Tatiana 
 
+1227H-F MARSON HAJANIRINA AMBININTSOA Marckel 
+
 Instruction pour lancer le projet : 
 - Installer SWI-Prolog et Python
 - Lancement du script: python App.py
